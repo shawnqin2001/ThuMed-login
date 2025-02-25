@@ -1,7 +1,7 @@
-import os
 import requests
 import zipfile
 import tarfile
+import os 
 from pathlib import Path
 
 class ClientInstaller:
@@ -65,7 +65,30 @@ class ClientInstaller:
 
         print("Installing oc")
         install_path = self.install_path[system]
-        os.makedirs(install_path, exist_ok=True)
+        install_path.mkdir(parents=True, exist_ok=True)
+
+        if system == "Windows":
+            with zipfile.ZipFile(download_path) as zip_file:
+                zip_file.extractall(install_path)
+        else:
+            with tarfile.open(download_path) as tar_file:
+                tar_file.extractall(install_path)
+
+        print("Adding installation path to PATH")
+        self._add_path(install_path, system)
+        print("Installation complete")
+    
+    def install_helm_client(self, system:str, arch="x86_64") -> None:
+        url = self.helm_download_url[system]
+        if system == "Darwin":
+            url = url[arch]
+        download_path = Path.home() / "Downloads" / url.split('/')[-1]
+        print("Downloading packages", url)
+        self._download_file(url, download_path)
+
+        print("Installing helm")
+        install_path = self.install_path[system]
+        install_path.mkdir(parents=True, exist_ok=True)
 
         if system == "Windows":
             with zipfile.ZipFile(download_path) as zip_file:

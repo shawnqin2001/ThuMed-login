@@ -43,3 +43,4 @@ class EnvironmentChecker:
                 "release:": platform.release()
             }
         }
+    
